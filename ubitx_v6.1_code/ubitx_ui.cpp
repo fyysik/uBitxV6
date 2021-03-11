@@ -13,57 +13,74 @@
  */
 
 #define BUTTON_SELECTED 1
+#define UPPERLINE 2
+
+#define COMMANDLINE 80
+#define MODELINE 42 ///45
+#define CWSTATUSLINE 210 ///55
+#define KPAD1 40
+#define KPAD2 110
+#define KPAD3 180
+#define BANDLINE COMMANDLINE+26
+
+
 
 struct Button {
   int x, y, w, h;
   char *text;
   char *morse;
-};
+} btntmp;
 
-#define MAX_BUTTONS 17
+
+#define MAX_BUTTONS 20
+#define USB "USB"
+#define LSB "LSB"
 const struct Button btn_set[MAX_BUTTONS] PROGMEM = { 
 //const struct Button  btn_set [] = {
-  {0, 10, 159, 36,  "VFOA", "A"},
-  {160, 10, 159, 36, "VFOB", "B"},
+  {0, UPPERLINE, 159, 36,  "VFOA", "A"},
+  {160, UPPERLINE, 159, 36, "VFOB", "B"},
   
-  {0, 80, 60, 36,  "RIT", "R"},
-  {64, 80, 60, 36, "USB", "U"},
-  {128, 80, 60, 36, "LSB", "L"},
-  {192, 80, 60, 36, "CW", "M"},
-  {256, 80, 60, 36, "SPL", "S"},
+  {0, MODELINE, 60, 36,  "RIT", "R"},
+  {64, MODELINE, 60, 36, USB, "U"},
+  {128, MODELINE, 60, 36, LSB, "L"},
+  {192, MODELINE, 60, 36, "CW", "M"},
+  {256, MODELINE, 60, 36, "SPL", "S"},
 
-  {0, 120, 60, 36, "80", "8"},
-  {64, 120, 60, 36, "40", "4"},
-  {128, 120, 60, 36, "30", "3"},
-  {192, 120, 60, 36, "20", "2"},
-  {256, 120, 60, 36, "17", "7"},
+  {0, BANDLINE, 60, 36, "160", "16"},
+  {64, BANDLINE, 60, 36, "80", "8"},
+  {128, BANDLINE, 60, 36, "60", "6"},
+  {192, BANDLINE, 60, 36, "40", "4"},
+  {256, BANDLINE, 60, 36, "30", "3"},
+  {0, BANDLINE+45, 60, 36, "20", "2"},
+  {64, BANDLINE+45, 60, 36, "13", "5"},
+  {128, BANDLINE+45, 60, 36, "11", "C"},
+  {192, BANDLINE+45, 60, 36, "10", "1"},
+  {256, BANDLINE+45, 60, 36, "FRQ", "F"},
+  
+  {0, CWSTATUSLINE-10, 60, 36, "WPM", "W"},
+  {128, CWSTATUSLINE-10, 60, 36, "TON", "T"},
 
-  {0, 160, 60, 36, "15", "5"},
-  {64, 160, 60, 36, "10", "1"},
-  {128, 160, 60, 36, "WPM", "W"},
-  {192, 160, 60, 36, "TON", "T"},
-  {256, 160, 60, 36, "FRQ", "F"},
 };
 
-#define MAX_KEYS 17
+#define MAX_KEYS 20
 const struct Button keypad[MAX_KEYS] PROGMEM = {   
-  {0, 80, 60, 36,  "1", "1"},
-  {64, 80, 60, 36, "2", "2"},
-  {128, 80, 60, 36, "3", "3"},
-  {192, 80, 60, 36,  "", ""},
-  {256, 80, 60, 36,  "OK", "K"},
+  {0, KPAD1, 60, 50,  "1", "1"},
+  {64, KPAD1, 60, 50, "2", "2"},
+  {128, KPAD1, 60, 50, "3", "3"},
+  {192, KPAD1, 60, 50,  "", ""},
+  {256, KPAD1, 60, 50,  "OK", "K"},
 
-  {0, 120, 60, 36,  "4", "4"},
-  {64, 120, 60, 36,  "5", "5"},
-  {128, 120, 60, 36,  "6", "6"},
-  {192, 120, 60, 36,  "0", "0"},
-  {256, 120, 60, 36,  "<-", "B"},
+  {0, KPAD2, 60, 50,  "4", "4"},
+  {64, KPAD2, 60, 50,  "5", "5"},
+  {128, KPAD2, 60, 50,  "6", "6"},
+  {192, KPAD2, 60, 50,  "0", "0"},
+  {256, KPAD2, 60, 50,  "<-", "B"},
 
-  {0, 160, 60, 36,  "7", "7"},
-  {64, 160, 60, 36, "8", "8"},
-  {128, 160, 60, 36, "9", "9"},
-  {192, 160, 60, 36,  "", ""},
-  {256, 160, 60, 36,  "Can", "C"},
+  {0, KPAD3, 60, 50,  "7", "7"},
+  {64, KPAD3, 60, 50, "8", "8"},
+  {128, KPAD3, 60, 50, "9", "9"},
+  {192, KPAD3, 60, 50,  "", ""},
+  {256, KPAD3, 60, 50,  "Can", "C"},
 };
 
 boolean getButton(char *text, struct Button *b){
@@ -90,8 +107,14 @@ void formatFreq(long f, char *buff) {
   ultoa(f, b, DEC);
 
   //one mhz digit if less than 10 M, two digits if more
-  if (f < 10000000l){
-    buff[0] = ' ';
+  if (f < 1000000l){
+    //buff[0] = buff[1] = ' ';
+    strncat(buff, b, 3);    
+    strcat(buff, ".");
+    strncat(buff, &b[3], 2);
+  }
+  else if (f < 10000000l){
+    //buff[0] = ' ';
     strncat(buff, b, 4);    
     strcat(buff, ".");
     strncat(buff, &b[4], 2);
@@ -103,9 +126,9 @@ void formatFreq(long f, char *buff) {
   }
 }
 
-void drawCommandbar(char *text){
-  displayFillrect(30,45,280, 32, DISPLAY_NAVY);
-  displayRawText(text, 30, 45, DISPLAY_WHITE, DISPLAY_NAVY);
+void drawCommandbar(char *text, int color=DISPLAY_WHITE, int background=DISPLAY_NAVY){
+  displayFillrect(0,COMMANDLINE,320, 25, DISPLAY_NAVY);
+  displayRawText(text, 0, COMMANDLINE, color, background);
 }
 
 /** A generic control to read variable values
@@ -144,7 +167,8 @@ int getValueByKnob(int minimum, int maximum, int step_size,  int initial, char* 
       }
       checkCAT();
     }
-   displayFillrect(30,41,280, 32, DISPLAY_NAVY);
+    drawCommandbar("");
+   //displayFillrect(0,COMMANDLINE,280, 25, DISPLAY_NAVY); /// ???
    return knob_value;
 }
 
@@ -166,7 +190,7 @@ void printCarrierFreq(unsigned long freq){
 void displayDialog(char *title, char *instructions){
   displayClear(DISPLAY_BLACK);
   displayRect(10,10,300,220, DISPLAY_WHITE);
-  displayHline(20,45,280,DISPLAY_WHITE);
+  displayHline(20,COMMANDLINE,280,DISPLAY_WHITE);
   displayRect(12,12,296,216, DISPLAY_WHITE);
   displayRawText(title, 20, 20, DISPLAY_CYAN, DISPLAY_NAVY);
   displayRawText(instructions, 20, 200, DISPLAY_CYAN, DISPLAY_NAVY);
@@ -176,6 +200,7 @@ void displayDialog(char *title, char *instructions){
 
 
 char vfoDisplay[12];
+
 void displayVFO(int vfo){
   int x, y;
   int displayColor, displayBorder;
@@ -224,35 +249,8 @@ void displayVFO(int vfo){
     }
   }
 
-  if (vfoDisplay[0] == 0){
-    displayFillrect(b.x, b.y, b.w, b.h, DISPLAY_BLACK);
-    if (vfoActive == vfo)
-      displayRect(b.x, b.y, b.w , b.h, DISPLAY_WHITE);
-    else
-      displayRect(b.x, b.y, b.w , b.h, DISPLAY_NAVY);
-  }  
-  x = b.x + 6;
-  y = b.y + 3;
-
-  char *text = c;
-
-  for (int i = 0; i <= strlen(c); i++){
-    char digit = c[i];
-    if (digit != vfoDisplay[i]){
-      
-      displayFillrect(x, y, 15, b.h-6, DISPLAY_BLACK);
-      //checkCAT();
-     
-      displayChar(x, y + TEXT_LINE_HEIGHT + 3, digit, displayColor, DISPLAY_BLACK);
-      checkCAT();
-    }
-    if (digit == ':' || digit == '.')
-      x += 7;
-    else
-      x += 16;
-    text++;
-  }//end of the while loop of the characters to be printed  
-  
+  displayText(c, b.x, b.y, b.w, b.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
+  //displayRawText(c, b.x, b.y, displayColor, DISPLAY_BLACK);
   strcpy(vfoDisplay, c);
 }
 
@@ -266,32 +264,31 @@ void btnDraw(struct Button *b){
     displayVFO(VFO_B);
   }
   else if ((!strcmp(b->text, "RIT") && ritOn == 1) || 
-      (!strcmp(b->text, "USB") && isUSB == 1) || 
-      (!strcmp(b->text, "LSB") && isUSB == 0) || 
-      (!strcmp(b->text, "SPL") && splitOn == 1))
-    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);   
-  else if (!strcmp(b->text, "CW") && cwMode == 1)
-      displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);   
+      (!strcmp(b->text, USB) && isUSB == 1) || 
+      (!strcmp(b->text, LSB) && isUSB == 0) || 
+      (!strcmp(b->text, "SPL") && splitOn == 1) ||
+      (!strcmp(b->text, "CW") && cwMode == 1))
+    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);
   else
     displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_GREEN, DISPLAY_BLACK, DISPLAY_DARKGREY);
 }
 
 
 void displayRIT(){
-  displayFillrect(0,41,320,30, DISPLAY_NAVY);
+  displayFillrect(0,COMMANDLINE,320,20, DISPLAY_NAVY);
   if (ritOn){
     strcpy(c, "TX:");
     formatFreq(ritTxFrequency, c+3);
     if (vfoActive == VFO_A)
-      displayText(c, 0, 45,159, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
+      displayText(c, 0, COMMANDLINE,159, 20, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
     else
-      displayText(c, 160, 45,159, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);      
+      displayText(c, 160, COMMANDLINE,159, 20, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);      
   }
   else {
     if (vfoActive == VFO_A)
-      displayText("", 0, 45,159, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
+      displayText("", 0, COMMANDLINE,159, 20, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
     else
-      displayText("", 160, 45,159, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
+      displayText("", 160, COMMANDLINE,159, 20, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
   }
 }
 
@@ -302,14 +299,15 @@ void fastTune(){
   while(btnDown())
     active_delay(50);
   active_delay(300);
-  
-  displayRawText("Fast tune", 100, 55, DISPLAY_CYAN, DISPLAY_NAVY);
+  drawCommandbar("Fast Tune", DISPLAY_CYAN, DISPLAY_NAVY);
+  //displayRawText("Fast Tune", 100, TUNESTATUSLINE, DISPLAY_CYAN, DISPLAY_NAVY);
   while(1){
     checkCAT();
 
     //exit after debouncing the btnDown
     if (btnDown()){
-      displayFillrect(100, 55, 120, 30, DISPLAY_NAVY);
+      drawCommandbar("", DISPLAY_CYAN, DISPLAY_NAVY);
+      //displayFillrect(0, TUNESTATUSLINE, 320, 20, DISPLAY_NAVY);
 
       //wait until the button is realsed and then return
       while(btnDown())
@@ -335,7 +333,7 @@ void enterFreq(){
   //force the display to refresh everything
   //display all the buttons
   int f;
-  
+  displayClear(DISPLAY_BLACK);
   for (int i = 0; i < MAX_KEYS; i++){
     struct Button b;
     memcpy_P(&b, keypad + i, sizeof(struct Button));
@@ -396,7 +394,7 @@ void enterFreq(){
     } // end of the button scanning loop
     strcpy(b, c);
     strcat(b, " KHz");
-    displayText(b, 0, 42, 320, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY);
+    displayText(b, 0, UPPERLINE, 320, 30, DISPLAY_WHITE, DISPLAY_NAVY, DISPLAY_NAVY); ///42
     delay(300);
     while(readTouch())
       checkCAT();
@@ -404,28 +402,34 @@ void enterFreq(){
   
 }
 
-void drawCWStatus(){
-  displayFillrect(0, 201, 320, 39, DISPLAY_NAVY);
-  strcpy(b, " cw:");
+void drawCWWPM(){
+  displayFillrect(64, CWSTATUSLINE, 60, 39, DISPLAY_NAVY);
   int wpm = 1200/cwSpeed;    
   itoa(wpm,c, 10);
+  strcpy(b, ": ");
   strcat(b, c);
-  strcat(b, "wpm, ");
+  displayRawText(b, 64, CWSTATUSLINE, DISPLAY_CYAN, DISPLAY_NAVY);
+  
+ 
+}
+void drawCWTone(){
+  displayFillrect(194, CWSTATUSLINE, 650, 39, DISPLAY_NAVY);  
   itoa(sideTone, c, 10);
+  strcpy(b, ": ");
   strcat(b, c);
-  strcat(b, "hz");
-  displayRawText(b, 0, 210, DISPLAY_CYAN, DISPLAY_NAVY);  
+  displayRawText(b, 194, CWSTATUSLINE, DISPLAY_CYAN, DISPLAY_NAVY);  
 }
 
 
 void drawTx(){
   if (inTx)
-    displayText("TX", 280, 48, 37, 28, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_BLUE);  
+    displayText("TX", 280, COMMANDLINE, 37, 22, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_BLUE);  
   else
-    displayFillrect(280, 48, 37, 28, DISPLAY_NAVY);
+    displayFillrect(280, COMMANDLINE, 37, 22, DISPLAY_NAVY);
 }
 void drawStatusbar(){
-  drawCWStatus();
+  drawCWWPM();
+  drawCWTone();
 }
 
 void guiUpdate(){
@@ -600,13 +604,13 @@ void cwToggle(struct Button *b){
 }
 
 void sidebandToggle(struct Button *b){
-  if (!strcmp(b->text, "LSB"))
+  if (!strcmp(b->text, LSB))
     isUSB = 0;
   else
     isUSB = 1;
-
+Serial.println(b->text);
   struct Button e;
-  getButton("USB", &e);
+  getButton(USB, &e);
   btnDraw(&e);
   getButton("LSB", &e);
   btnDraw(&e);
@@ -636,21 +640,27 @@ void redrawVFOs(){
 
 
 void switchBand(long bandfreq){
-  long offset;
+  long offset =0;
 
-//  Serial.println(frequency);
-//  Serial.println(bandfreq);
-  if (3500000l <= frequency && frequency <= 4000000l)
+ // Serial.println(frequency);
+ //Serial.println(bandfreq);
+ /* if (3500000l <= frequency && frequency <= 4000000l)
     offset = frequency - 3500000l;
   else if (24800000l <= frequency && frequency <= 25000000l)
     offset = frequency - 24800000l;
   else 
     offset = frequency % 1000000l; 
 
-//  Serial.println(offset);
+//  Serial.println(offset);*/
+  struct Button e;
+  char *btntxt;
 
   setFrequency(bandfreq + offset);
-  updateDisplay(); 
+  updateDisplay();
+  
+  btntxt =  (bandfreq <= 10000000L)?"LSB":"USB"; //sideband
+  getButton(btntxt, &e);
+  sidebandToggle(&e);
   saveVFOs();
 }
 
@@ -659,27 +669,40 @@ int setCwSpeed(){
     int wpm;
 
     wpm = 1200/cwSpeed;
-     
-    wpm = getValueByKnob(1, 100, 1,  wpm, "CW: ", " WPM");
-  
-    cwSpeed = 1200/wpm;
+    drawCommandbar("Set WPM, push TUNE");
+    while (digitalRead(PTT) == HIGH && !btnDown())
+    {
 
+
+      knob = enc_read();
+
+      if (knob > 0 && wpm < 200)
+        wpm += 1;
+      else if (knob < 0 && wpm > 2 )
+         wpm -= 1;
+      else
+        continue; //don't update the frequency or the display
+    cwSpeed = 1200/wpm;
+      drawCWWPM();
+      active_delay(20);
+    };
+    
     EEPROM.put(CW_SPEED, cwSpeed);
+    drawCommandbar("");
     active_delay(500);
-    drawStatusbar();      
-//    printLine2("");
-//    updateDisplay();
 }
 
 void setCwTone(){
   int knob = 0;
   int prev_sideTone;
      
-  tone(CW_TONE, sideTone);
-
+  drawCommandbar("Set Tone, push TUNE");
+ // sideTone = getValueByKnob(1, 100, 1,  sideTone, "CW: ", " Tone"); 
   //disable all clock 1 and clock 2 
   while (digitalRead(PTT) == HIGH && !btnDown())
   {
+
+
     knob = enc_read();
 
     if (knob > 0 && sideTone < 2000)
@@ -688,24 +711,18 @@ void setCwTone(){
       sideTone -= 10;
     else
       continue; //don't update the frequency or the display
-        
     tone(CW_TONE, sideTone);
-    itoa(sideTone, c, 10);
-    strcpy(b, "CW Tone: ");
-    strcat(b, c);
-    strcat(b, " Hz");
-    drawCommandbar(b);
     //printLine2(b);
-
+    drawCWTone();
     checkCAT();
     active_delay(20);
-  }
+  };
   noTone(CW_TONE);
   //save the setting
   EEPROM.put(CW_SIDETONE, sideTone);
-
-  displayFillrect(30,41,280, 32, DISPLAY_NAVY);
-  drawStatusbar();
+  drawCommandbar("");
+  //displayFillrect(0, COMMANDLINE, 320, 22, DISPLAY_NAVY);
+  //drawStatusbar();
 //  printLine2("");  
 //  updateDisplay();  
 }
@@ -716,7 +733,7 @@ void doCommand(struct Button *b){
     ritToggle(b);
   else if (!strcmp(b->text, "LSB"))
     sidebandToggle(b);
-  else if (!strcmp(b->text, "USB"))
+  else if (!strcmp(b->text, USB))
     sidebandToggle(b);
   else if (!strcmp(b->text, "CW"))
     cwToggle(b);
@@ -736,8 +753,12 @@ void doCommand(struct Button *b){
   }
   else if (!strcmp(b->text, "A=B"))
     vfoReset();
+  else if (!strcmp(b->text, "160"))
+    switchBand(1800000l);
   else if (!strcmp(b->text, "80"))
     switchBand(3500000l);
+  else if (!strcmp(b->text, "60"))
+    switchBand(5250000l);
   else if (!strcmp(b->text, "40"))
     switchBand(7000000l);
   else if (!strcmp(b->text, "30"))
@@ -750,6 +771,8 @@ void doCommand(struct Button *b){
     switchBand(21000000l);
   else if (!strcmp(b->text, "13"))
     switchBand(24800000l);
+  else if (!strcmp(b->text, "11"))
+    switchBand(27200000l);
   else if (!strcmp(b->text, "10"))
     switchBand(28000000l);  
   else if (!strcmp(b->text, "FRQ"))
@@ -758,6 +781,7 @@ void doCommand(struct Button *b){
     setCwSpeed();
   else if (!strcmp(b->text, "TON"))
     setCwTone();
+
 }
 
 void  checkTouch(){
@@ -867,4 +891,3 @@ void doCommands(){
 
   checkCAT();
 }
-
