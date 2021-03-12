@@ -14,14 +14,38 @@
 
 #define BUTTON_SELECTED 1
 #define UPPERLINE 2
-
-#define COMMANDLINE 80
 #define MODELINE 42 ///45
+#define COMMANDLINE 80
+#define BANDLINE COMMANDLINE+26
 #define CWSTATUSLINE 210 ///55
 #define KPAD1 40
 #define KPAD2 110
 #define KPAD3 180
-#define BANDLINE COMMANDLINE+26
+
+#define L630 450000L
+#define U630 500000L
+#define L160 1800000L
+#define U160 2000000L
+#define L80 3500000L
+#define U80 4000000L
+#define L60 5250000L
+#define U60 5410000L
+#define L40 7000000L
+#define U40 7300000L
+#define L30 10000000L
+#define U30 10155000L
+#define L20 14000000L
+#define U20 14400000L
+#define L17 18068000L
+#define U17 18170000L
+#define L15 21000000L
+#define U15 21450000L
+#define L13 24890000L
+#define U13 24990000L
+#define L11 26000000L
+#define U11 27999999L
+#define L10 28000000L
+#define U10 30000000L
 
 
 
@@ -41,21 +65,21 @@ const struct Button btn_set[MAX_BUTTONS] PROGMEM = {
   {160, UPPERLINE, 159, 36, "VFOB", "B"},
   
   {0, MODELINE, 60, 36,  "RIT", "R"},
-  {64, MODELINE, 60, 36, USB, "U"},
-  {128, MODELINE, 60, 36, LSB, "L"},
-  {192, MODELINE, 60, 36, "CW", "M"},
-  {256, MODELINE, 60, 36, "SPL", "S"},
-
+  {64, MODELINE, 60, 36, "SSB", "S"},
+  {128, MODELINE, 60, 36, "CW", "M"},
+  {192, MODELINE, 60, 36, "SPL", "S"},
+  {256, MODELINE, 60, 36, "FRQ", "F"},
+  
   {0, BANDLINE, 60, 36, "160", "16"},
   {64, BANDLINE, 60, 36, "80", "8"},
   {128, BANDLINE, 60, 36, "60", "6"},
   {192, BANDLINE, 60, 36, "40", "4"},
   {256, BANDLINE, 60, 36, "30", "3"},
   {0, BANDLINE+45, 60, 36, "20", "2"},
-  {64, BANDLINE+45, 60, 36, "13", "5"},
+  {64, BANDLINE+45, 60, 36, "15", "5"},
   {128, BANDLINE+45, 60, 36, "11", "C"},
   {192, BANDLINE+45, 60, 36, "10", "1"},
-  {256, BANDLINE+45, 60, 36, "FRQ", "F"},
+  {256, BANDLINE+45, 60, 36, "", ""},
   
   {0, CWSTATUSLINE-10, 60, 36, "WPM", "W"},
   {128, CWSTATUSLINE-10, 60, 36, "TON", "T"},
@@ -82,17 +106,49 @@ const struct Button keypad[MAX_KEYS] PROGMEM = {
   {192, KPAD3, 60, 50,  "", ""},
   {256, KPAD3, 60, 50,  "Can", "C"},
 };
+int max_buttons = sizeof(btn_set)/sizeof(struct Button);
 
 boolean getButton(char *text, struct Button *b){
-  for (int i = 0; i < MAX_BUTTONS; i++){
+  for (int i = 0; i < MAX_BUTTONS-1; i++){
     memcpy_P(b, btn_set + i, sizeof(struct Button));
-    if (!strcmp(text, b->text)){
+    if (strstr(b->text, text)!=NULL){
       return true;
     }
   }
   return false;
 }
 
+bool drawBandButton(struct Button *b){
+  int inband=0;
+  switch (atoi(b->text)) {
+    case 160: if(L160 <= frequency && frequency <= U160) 
+      inband=1; break;
+    case 80:  if(L80 <= frequency && frequency <=U80) 
+      inband=1; break;
+    case 60:  if(L60 <= frequency && frequency <=U60) 
+      inband=1; break;
+    case 40:  if(L40 <= frequency && frequency <=U40) 
+      inband=1;break;
+    case 30:  if(L30 <= frequency &&  frequency <=U30) 
+      inband=1; break;
+    case 20:  if(L20 <= frequency && frequency <=U20) 
+      inband=1; break;
+    //case 17:  if(L17 <= frequency && frequency <=U17) inband=1; break;
+//    case 15:  if(L15 <= frequency && frequency <=U15) 
+//      inband=1; break;
+    case 13: if(L13 <= frequency && frequency <= U13) 
+      inband=1; break;
+    case 11: if(L11 <= frequency && frequency <= U11) 
+      inband=1; break;
+    case 10: if(L10 <= frequency && frequency <= U10) 
+      inband=1; break;
+    default:; 
+  }
+  if(inband)
+    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);    
+  else
+    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_GREEN, DISPLAY_BLACK, DISPLAY_DARKGREY);
+}
 
 /*
  * This formats the frequency given in f 
@@ -264,11 +320,17 @@ void btnDraw(struct Button *b){
     displayVFO(VFO_B);
   }
   else if ((!strcmp(b->text, "RIT") && ritOn == 1) || 
-      (!strcmp(b->text, USB) && isUSB == 1) || 
-      (!strcmp(b->text, LSB) && isUSB == 0) || 
+      //(!strcmp(b->text, USB) && isUSB == 1) || 
+      //(!strcmp(b->text, LSB) && isUSB == 0) || 
       (!strcmp(b->text, "SPL") && splitOn == 1) ||
       (!strcmp(b->text, "CW") && cwMode == 1))
     displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);
+  else if (strstr(b->text, "SB")  != NULL){
+    if(isUSB)
+      displayText(USB, b->x, b->y, b->w, b->h, DISPLAY_YELLOW, DISPLAY_BLUE, DISPLAY_DARKGREY);
+    else
+      displayText(LSB, b->x, b->y, b->w, b->h, DISPLAY_GREEN, DISPLAY_PINK, DISPLAY_DARKGREY);
+  }
   else
     displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_GREEN, DISPLAY_BLACK, DISPLAY_DARKGREY);
 }
@@ -603,19 +665,24 @@ void cwToggle(struct Button *b){
   btnDraw(b);
 }
 
-void sidebandToggle(struct Button *b){
-  if (!strcmp(b->text, LSB))
+void sidebandToggle(char *ssb){
+  struct Button e;
+  getButton("SB", &e);
+  if (!strcmp(ssb, LSB))
     isUSB = 0;
   else
     isUSB = 1;
-Serial.println(b->text);
-  struct Button e;
+    Serial.print("in sb toggle: ");Serial.print(e.text); Serial.print(" switching to ");
+Serial.println(isUSB?USB:LSB);
+
+  /*struct Button e;
   getButton(USB, &e);
   btnDraw(&e);
   getButton("LSB", &e);
-  btnDraw(&e);
+  btnDraw(&e);*/
 
   saveVFOs();
+  btnDraw(&e);
 }
 
 
@@ -630,12 +697,9 @@ void redrawVFOs(){
     displayVFO(VFO_A);
     memset(vfoDisplay, 0, sizeof(vfoDisplay));
     displayVFO(VFO_B);
-
+    Serial.println(frequency);
     //draw the lsb/usb buttons, the sidebands might have changed
-    getButton("LSB", &b);
-    btnDraw(&b);
-    getButton("USB", &b);
-    btnDraw(&b);  
+    sidebandToggle((isUSB == 0000000L)?"LSB":"USB");
 }
 
 
@@ -652,15 +716,12 @@ void switchBand(long bandfreq){
     offset = frequency % 1000000l; 
 
 //  Serial.println(offset);*/
-  struct Button e;
-  char *btntxt;
+  //struct Button e;
 
   setFrequency(bandfreq + offset);
   updateDisplay();
   
-  btntxt =  (bandfreq <= 10000000L)?"LSB":"USB"; //sideband
-  getButton(btntxt, &e);
-  sidebandToggle(&e);
+  sidebandToggle((bandfreq < 10000000L)?"LSB":"USB");
   saveVFOs();
 }
 
@@ -731,10 +792,12 @@ void doCommand(struct Button *b){
   
   if (!strcmp(b->text, "RIT"))
     ritToggle(b);
-  else if (!strcmp(b->text, "LSB"))
-    sidebandToggle(b);
-  else if (!strcmp(b->text, USB))
-    sidebandToggle(b);
+  else if (strstr(b->text, "SB")!=NULL) {
+    Serial.print("doCommand toggle SB");
+    sidebandToggle(isUSB?LSB:USB);
+  }
+  //else if (!strcmp(b->text, USB))
+  //  sidebandToggle(USB);
   else if (!strcmp(b->text, "CW"))
     cwToggle(b);
   else if (!strcmp(b->text, "SPL"))
