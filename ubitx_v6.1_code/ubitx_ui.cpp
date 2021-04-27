@@ -76,10 +76,10 @@ const struct Button btn_set[MAX_BUTTONS] PROGMEM = {
   {192, BANDLINE, 60, 36, "40", "4"},
   {256, BANDLINE, 60, 36, "30", "3"},
   {0, BANDLINE+45, 60, 36, "20", "2"},
-  {64, BANDLINE+45, 60, 36, "15", "5"},
-  {128, BANDLINE+45, 60, 36, "11", "C"},
-  {192, BANDLINE+45, 60, 36, "10", "1"},
-  {256, BANDLINE+45, 60, 36, "", ""},
+  {64, BANDLINE+45, 60, 36, "17", "7"},
+  {128, BANDLINE+45, 60, 36, "15", "5"},
+  {192, BANDLINE+45, 60, 36, "11", "C"},
+  {256, BANDLINE+45, 60, 36, "10", "1"},
   
   {0, CWSTATUSLINE-10, 60, 36, "WPM", "W"},
   {128, CWSTATUSLINE-10, 60, 36, "TON", "T"},
@@ -104,12 +104,12 @@ const struct Button keypad[MAX_KEYS] PROGMEM = {
   {64, KPAD3, 60, 50, "8", "8"},
   {128, KPAD3, 60, 50, "9", "9"},
   {192, KPAD3, 60, 50,  "", ""},
-  {256, KPAD3, 60, 50,  "Can", "C"},
+  {256, KPAD3, 60, 50,  "Esc", "C"},
 };
 int max_buttons = sizeof(btn_set)/sizeof(struct Button);
 
 boolean getButton(char *text, struct Button *b){
-  for (int i = 0; i < MAX_BUTTONS-1; i++){
+  for (int i = 0; i < max_buttons-1; i++){
     memcpy_P(b, btn_set + i, sizeof(struct Button));
     if (strstr(b->text, text)!=NULL){
       return true;
@@ -118,9 +118,9 @@ boolean getButton(char *text, struct Button *b){
   return false;
 }
 
-bool drawBandButton(struct Button *b){
+int inBand(char *text){
   int inband=0;
-  switch (atoi(b->text)) {
+  switch (atoi(text)) {
     case 160: if(L160 <= frequency && frequency <= U160) 
       inband=1; break;
     case 80:  if(L80 <= frequency && frequency <=U80) 
@@ -144,10 +144,7 @@ bool drawBandButton(struct Button *b){
       inband=1; break;
     default:; 
   }
-  if(inband)
-    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);    
-  else
-    displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_GREEN, DISPLAY_BLACK, DISPLAY_DARKGREY);
+  return 1;
 }
 
 /*
@@ -260,10 +257,9 @@ char vfoDisplay[12];
 void displayVFO(int vfo){
   int x, y;
   int displayColor, displayBorder;
-  Button b;
 
   if (vfo == VFO_A){
-    getButton("VFOA", &b);
+    getButton("VFOA", &btntmp);
     if (splitOn){
       if (vfoActive == VFO_A)
         strcpy(c, "R:");
@@ -284,7 +280,7 @@ void displayVFO(int vfo){
   }
 
   if (vfo == VFO_B){
-    getButton("VFOB", &b);
+    getButton("VFOB", &btntmp);
 
     if (splitOn){
       if (vfoActive == VFO_B)
@@ -305,8 +301,8 @@ void displayVFO(int vfo){
     }
   }
 
-  displayText(c, b.x, b.y, b.w, b.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
-  //displayRawText(c, b.x, b.y, displayColor, DISPLAY_BLACK);
+  displayText(c, btntmp.x, btntmp.y, btntmp.w, btntmp.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
+  //displayRawText(c, btntmp.x, btntmp.y, displayColor, DISPLAY_BLACK);
   strcpy(vfoDisplay, c);
 }
 
@@ -618,9 +614,9 @@ void splitToggle(struct Button *b){
   //disable rit as well
   ritDisable();
   
-  struct Button b2;
-  getButton("RIT", &b2);
-  btnDraw(&b2);
+  //struct Button b2;
+  getButton("RIT", &btntmp);
+  btnDraw(&btntmp);
   
   displayRIT();
   memset(vfoDisplay, 0, sizeof(vfoDisplay));
@@ -630,20 +626,20 @@ void splitToggle(struct Button *b){
 }
 
 void vfoReset(){
-  Button b;
+  //Button b;
   if (vfoActive = VFO_A)
     vfoB = vfoA;
   else
     vfoA = vfoB;
 
   if (splitOn){
-    getButton("SPL", &b);
-    splitToggle(&b);
+    getButton("SPL", &btntmp);
+    splitToggle(&btntmp);
   }
 
   if (ritOn){
-    getButton("RIT", &b);
-    ritToggle(&b);
+    getButton("RIT", &btntmp);
+    ritToggle(&btntmp);
   }
   
   memset(vfoDisplay, 0, sizeof(vfoDisplay));
@@ -666,38 +662,30 @@ void cwToggle(struct Button *b){
 }
 
 void sidebandToggle(char *ssb){
-  struct Button e;
-  getButton("SB", &e);
+  //struct Button e;
+  getButton("SB", &btntmp);
   if (!strcmp(ssb, LSB))
     isUSB = 0;
   else
     isUSB = 1;
-    Serial.print("in sb toggle: ");Serial.print(e.text); Serial.print(" switching to ");
-Serial.println(isUSB?USB:LSB);
-
-  /*struct Button e;
-  getButton(USB, &e);
-  btnDraw(&e);
-  getButton("LSB", &e);
-  btnDraw(&e);*/
 
   saveVFOs();
-  btnDraw(&e);
+  btnDraw(&btntmp);
 }
 
 
 void redrawVFOs(){
 
-    struct Button b;
+    //struct Button b;
     ritDisable();
-    getButton("RIT", &b);
-    btnDraw(&b);
+    getButton("RIT", &btntmp);
+    btnDraw(&btntmp);
     displayRIT();
     memset(vfoDisplay, 0, sizeof(vfoDisplay));
     displayVFO(VFO_A);
     memset(vfoDisplay, 0, sizeof(vfoDisplay));
     displayVFO(VFO_B);
-    Serial.println(frequency);
+    //Serial.println(frequency);
     //draw the lsb/usb buttons, the sidebands might have changed
     sidebandToggle((isUSB == 0000000L)?"LSB":"USB");
 }

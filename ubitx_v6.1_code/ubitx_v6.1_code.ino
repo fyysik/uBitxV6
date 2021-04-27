@@ -302,30 +302,32 @@ void saveVFOs(){
 
 void setTXFilters(unsigned long freq){
   
-  if (freq > 21000000L){  // the default filter is with 35 MHz cut-off
+  if (freq > 20000000L){  // the default filter is with 35 MHz cut-off
     digitalWrite(TX_LPF_A, 0);
     digitalWrite(TX_LPF_B, 0);
     digitalWrite(TX_LPF_C, 0);
-  }
-  else if (freq >= 14000000L){ //thrown the KT1 relay on, the 30 MHz LPF is bypassed and the 14-18 MHz LPF is allowd to go through
+   //                 20000000L
+  }  else if (freq >= 10000000L){ //thrown the KT1 relay on, the 30 MHz LPF is bypassed and the 14-18 MHz LPF is allowd to go through
     digitalWrite(TX_LPF_A, 1);
+    
     digitalWrite(TX_LPF_B, 0);
     digitalWrite(TX_LPF_C, 0);
-  }
-  else if (freq > 7000000L){
-    digitalWrite(TX_LPF_A, 0);
-    digitalWrite(TX_LPF_B, 1);
+                 //20000000L
+  }              //14000000L
+  else if (freq >= 5660000L){
+    digitalWrite(TX_LPF_A, 1);
+    digitalWrite(TX_LPF_B, 1);//1
     digitalWrite(TX_LPF_C, 0);    
   }
   else {
-    digitalWrite(TX_LPF_A, 0);
-    digitalWrite(TX_LPF_B, 0);
+    digitalWrite(TX_LPF_A, 1);
+    digitalWrite(TX_LPF_B, 1);
     digitalWrite(TX_LPF_C, 1);    
   }
 }
 
 
-void setTXFilters_v5(unsigned long freq){
+/*void setTXFilters_v5(unsigned long freq){
   
   if (freq > 21000000L){  // the default filter is with 35 MHz cut-off
     digitalWrite(TX_LPF_A, 0);
@@ -347,7 +349,7 @@ void setTXFilters_v5(unsigned long freq){
     digitalWrite(TX_LPF_B, 0);
     digitalWrite(TX_LPF_C, 1);    
   }
-}
+}*/
 
 
 /**
@@ -610,21 +612,22 @@ void doTuning(){
 
   unsigned long now = millis();
   
-  if (now >= nextFrequencyUpdate && prev_freq != frequency){
-    updateDisplay();
-    nextFrequencyUpdate = now + 500;
-    prev_freq = frequency;
-  }
+
 
   s = enc_read();
   if (!s)
     return;
+  if (now >= nextFrequencyUpdate && prev_freq != frequency){
+    updateDisplay();
+    nextFrequencyUpdate = now + 250;
+    prev_freq = frequency;
+  }
 
   doingCAT = 0; // go back to manual mode if you were doing CAT
   prev_freq = frequency;
 
-
-  if (s > 10)
+  frequency += 10L*s;
+   /*if (s > 10)
     frequency += 200l * s;
   else if (s > 5)
     frequency += 100l * s;
@@ -635,7 +638,7 @@ void doTuning(){
   else if (s < -5)
     frequency += 100l * s;
   else if (s  < 0)
-    frequency += 50l * s;
+    frequency += 50l * s;*/
    
   if (prev_freq < 10000000l && frequency > 10000000l)
     isUSB = true;
