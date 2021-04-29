@@ -68,7 +68,7 @@ const struct Button btn_set[MAX_BUTTONS] PROGMEM = {
   {64, MODELINE, 60, 36, "SSB", "S"},
   {128, MODELINE, 60, 36, "CW", "M"},
   {192, MODELINE, 60, 36, "SPL", "S"},
-  {256, MODELINE, 60, 36, "FRQ", "F"},
+  {256, MODELINE, 60, 36, "FST", "F"},
   
   {0, BANDLINE, 60, 36, "160", "16"},
   {64, BANDLINE, 60, 36, "80", "8"},
@@ -319,7 +319,8 @@ void btnDraw(struct Button *b){
       //(!strcmp(b->text, USB) && isUSB == 1) || 
       //(!strcmp(b->text, LSB) && isUSB == 0) || 
       (!strcmp(b->text, "SPL") && splitOn == 1) ||
-      (!strcmp(b->text, "CW") && cwMode == 1))
+      (!strcmp(b->text, "CW") && cwMode == 1) ||
+      (!strcmp(b->text, "FST") && fastOn == 1))
     displayText(b->text, b->x, b->y, b->w, b->h, DISPLAY_BLACK, DISPLAY_ORANGE, DISPLAY_DARKGREY);
   else if (strstr(b->text, "SB")  != NULL){
     if(isUSB)
@@ -591,6 +592,14 @@ int enc_read(void) {
   return(result);
 }
 */
+void fastToggle(struct Button *b){
+  if (fastOn == 0){
+    fastOn =1;
+  }
+  else
+    fastOn =0;
+  btnDraw(b);
+}
 
 void ritToggle(struct Button *b){
   if (ritOn == 0){
@@ -792,13 +801,13 @@ void doCommand(struct Button *b){
     splitToggle(b);
   else if (!strcmp(b->text, "VFOA")){
     if (vfoActive == VFO_A)
-      fastTune();
+      enterFreq();//fastTune();
     else
       switchVFO(VFO_A);
   }
   else if (!strcmp(b->text, "VFOB")){
     if (vfoActive == VFO_B)
-      fastTune();
+      enterFreq();//fastTune();
     else
       switchVFO(VFO_B);
   }
@@ -826,8 +835,9 @@ void doCommand(struct Button *b){
     switchBand(27200000l);
   else if (!strcmp(b->text, "10"))
     switchBand(28000000l);  
-  else if (!strcmp(b->text, "FRQ"))
-    enterFreq();
+  else if (!strcmp(b->text, "FST"))
+    fastToggle(b);
+    //enterFreq();
   else if (!strcmp(b->text, "WPM"))
     setCwSpeed();
   else if (!strcmp(b->text, "TON"))

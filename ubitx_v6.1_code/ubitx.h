@@ -162,6 +162,7 @@ extern unsigned char doingCAT;
 extern boolean txCAT;        //turned on if the transmitting due to a CAT command
 extern char inTx;                //it is set to 1 if in transmit mode (whatever the reason : cw, ptt or cat)
 extern int splitOn;             //working split, uses VFO B as the transmit frequency
+extern char fastOn;
 extern char keyDown;             //in cw mode, denotes the carrier is being transmitted
 extern char isUSB;               //upper sideband was selected, this is reset to the default for the 
                               //frequency when it crosses the frequency border of 10 MHz

@@ -204,7 +204,7 @@ int count = 0;          //to generally count ticks, loops, etc
 #define TX_SSB 0
 #define TX_CW 1
 
-char ritOn = 0;
+
 char vfoActive = VFO_A;
 int8_t meter_reading = 0; // a -1 on meter makes it invisible
 unsigned long vfoA=7150000L, vfoB=14200000L, sideTone=800, usbCarrier;
@@ -232,6 +232,8 @@ unsigned char doingCAT = 0;
  */
 boolean txCAT = false;        //turned on if the transmitting due to a CAT command
 char inTx = 0;                //it is set to 1 if in transmit mode (whatever the reason : cw, ptt or cat)
+char ritOn = 0;               // working RIT
+char fastOn = 0;              //Fast Tune on
 int splitOn = 0;             //working split, uses VFO B as the transmit frequency
 char keyDown = 0;             //in cw mode, denotes the carrier is being transmitted
 char isUSB = 0;               //upper sideband was selected, this is reset to the default for the 
@@ -625,8 +627,26 @@ void doTuning(){
 
   doingCAT = 0; // go back to manual mode if you were doing CAT
   prev_freq = frequency;
-
-  frequency += 10L*s;
+  if(fastOn) {      
+      if (s > 0 && frequency < 30000000l)
+        frequency += 50000l;
+      else if (s < 0 && frequency > 600000l)
+        frequency -= 50000l;
+    
+  }
+  else
+    frequency += 10L*s;
+  /*//FAST TUNE 
+      encoder = enc_read();
+    if (encoder != 0){
+ 
+      if (encoder > 0 && frequency < 30000000l)
+        frequency += 50000l;
+      else if (encoder < 0 && frequency > 600000l)
+        frequency -= 50000l;
+      setFrequency(frequency);
+      displayVFO(vfoActive);
+    }*/
    /*if (s > 10)
     frequency += 200l * s;
   else if (s > 5)
