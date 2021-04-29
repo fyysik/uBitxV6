@@ -351,42 +351,6 @@ void displayRIT(){
   }
 }
 
-void fastTune(){
-  int encoder;
-
-  //if the btn is down, wait until it is up
-  while(btnDown())
-    active_delay(50);
-  active_delay(300);
-  drawCommandbar("Fast Tune", DISPLAY_CYAN, DISPLAY_NAVY);
-  //displayRawText("Fast Tune", 100, TUNESTATUSLINE, DISPLAY_CYAN, DISPLAY_NAVY);
-  while(1){
-    checkCAT();
-
-    //exit after debouncing the btnDown
-    if (btnDown()){
-      drawCommandbar("", DISPLAY_CYAN, DISPLAY_NAVY);
-      //displayFillrect(0, TUNESTATUSLINE, 320, 20, DISPLAY_NAVY);
-
-      //wait until the button is realsed and then return
-      while(btnDown())
-        active_delay(50);
-      active_delay(300);
-      return;
-    }
-    
-    encoder = enc_read();
-    if (encoder != 0){
- 
-      if (encoder > 0 && frequency < 30000000l)
-        frequency += 50000l;
-      else if (encoder < 0 && frequency > 600000l)
-        frequency -= 50000l;
-      setFrequency(frequency);
-      displayVFO(vfoActive);
-    }
-  }// end of the event loop
-}
 
 void enterFreq(){
   //force the display to refresh everything
@@ -441,7 +405,7 @@ void enterFreq(){
               cursor_pos--;      
             c[cursor_pos] = 0;
           }
-          else if (!strcmp(b.text, "Can")){
+          else if (!strcmp(b.text, "Esc")){
             guiUpdate();
             return;
           }
