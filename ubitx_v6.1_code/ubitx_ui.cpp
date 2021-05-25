@@ -98,13 +98,13 @@ const struct Button keypad[MAX_KEYS] PROGMEM = {
   {64, KPAD2, 60, 50,  "5", "5"},
   {128, KPAD2, 60, 50,  "6", "6"},
   {192, KPAD2, 60, 50,  "0", "0"},
-  {256, KPAD2, 60, 50,  "OK", "K"},
+  {256, KPAD2, 60, 50,  "ESC", "C"},
 
   {0, KPAD3, 60, 50,  "7", "7"},
   {64, KPAD3, 60, 50, "8", "8"},
   {128, KPAD3, 60, 50, "9", "9"},
   {192, KPAD3, 60, 50,  "", ""},
-  {256, KPAD3, 60, 50,  "Esc", "C"},
+  {256, KPAD3, 60, 50,  "OK", "K"},
 };
 int max_buttons = sizeof(btn_set)/sizeof(struct Button);
 
