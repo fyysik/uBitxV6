@@ -680,7 +680,7 @@ void switchBand(long bandfreq){
   //struct Button e;
 
   setFrequency(bandfreq + offset);
-  updateDisplay();
+  //updateDisplay();
   
   sidebandToggle((bandfreq < 10000000L)?"LSB":"USB");
   saveVFOs();

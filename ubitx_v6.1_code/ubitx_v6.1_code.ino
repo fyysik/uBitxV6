@@ -399,6 +399,11 @@ void setFrequency(unsigned long f){
   }
     
   frequency = f;
+    if (1/*(now >= nextFrequencyUpdat)*/){
+
+    //nextFrequencyUpdate = now + 250;
+      updateDisplay(/*prev_freq, frequency^*/);  
+  }
 }
 
 /**
@@ -502,7 +507,7 @@ void ritDisable(){
   if (ritOn){
     ritOn = 0;
     setFrequency(ritTxFrequency);
-    updateDisplay();
+    //updateDisplay();
   }
 }
 
@@ -619,46 +624,19 @@ void doTuning(){
   s = enc_read();
   if (!s)
     return;
-  if (now >= nextFrequencyUpdate && prev_freq != frequency){
-    updateDisplay();
-    nextFrequencyUpdate = now + 250;
-    prev_freq = frequency;
-  }
 
+//Serial.println(s);
   doingCAT = 0; // go back to manual mode if you were doing CAT
   prev_freq = frequency;
   if(fastOn) {      
-      if (s > 0 && frequency < 30000000l)
+      if (s > 0 && frequency < 30000000L)
         frequency += 50000l;
-      else if (s < 0 && frequency > 600000l)
+      else if (s < 0 && frequency > 600000L)
         frequency -= 50000l;
     
   }
   else
-    frequency += 10L*s;
-  /*//FAST TUNE 
-      encoder = enc_read();
-    if (encoder != 0){
- 
-      if (encoder > 0 && frequency < 30000000l)
-        frequency += 50000l;
-      else if (encoder < 0 && frequency > 600000l)
-        frequency -= 50000l;
-      setFrequency(frequency);
-      displayVFO(vfoActive);
-    }*/
-   /*if (s > 10)
-    frequency += 200l * s;
-  else if (s > 5)
-    frequency += 100l * s;
-  else if (s > 0)
-    frequency += 50l * s;
-  else if (s < -10)
-    frequency += 200l * s;
-  else if (s < -5)
-    frequency += 100l * s;
-  else if (s  < 0)
-    frequency += 50l * s;*/
+    frequency += s*5L;
    
   if (prev_freq < 10000000l && frequency > 10000000l)
     isUSB = true;
@@ -666,7 +644,7 @@ void doTuning(){
   if (prev_freq > 10000000l && frequency < 10000000l)
     isUSB = false;
 
-  setFrequency(frequency);    
+  setFrequency(frequency);  
 }
 
 
@@ -686,7 +664,7 @@ void doRIT(){
  
   if (old_freq != frequency){
     setFrequency(frequency);
-    updateDisplay();
+    //updateDisplay();
   }
 }
 

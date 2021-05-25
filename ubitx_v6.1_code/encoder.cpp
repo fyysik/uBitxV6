@@ -108,14 +108,10 @@ int8_t min_momentum_mag()
 int enc_read(void) {
   if(0 != enc_count){
     int16_t ret = enc_count;
-    int8_t s = (enc_count < 0) ? -1 : 1;
-    int8_t momentum_mag = min_momentum_mag();
-    if(momentum_mag >= 20){
-      ret += s*40;
-    }
-    else if(momentum_mag >= 5){
-      ret += s*(20 + momentum_mag)/(20 - momentum_mag);
-    }
+    int8_t momentum_mag = min_momentum_mag()+1;
+    //Serial.print("mom:");Serial.println(momentum_mag);
+    //Serial.print("cnt:");Serial.println(enc_count);
+    ret = ret*(momentum_mag*momentum_mag);
     enc_count = 0;
     return ret;
   }

@@ -279,7 +279,7 @@ void processCATCommand2(byte* cmd) {
     //set frequency
     f = readFreq(cmd);
     setFrequency(f);   
-    updateDisplay();
+    //updateDisplay();
     response[0]=0;
     Serial.write(response, 1);
     //sprintf(b, "set:%ld", f); 
@@ -453,5 +453,3 @@ void checkCAT(){
   processCATCommand2(cat);
   insideCat = 0;
 }
-
-
