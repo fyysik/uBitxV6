@@ -301,8 +301,8 @@ void displayVFO(int vfo){
     }
   }
 
-  displayText(c, btntmp.x, btntmp.y, btntmp.w, btntmp.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
-  //displayRawText(c, btntmp.x, btntmp.y, displayColor, DISPLAY_BLACK);
+  //displayText(c, btntmp.x, btntmp.y, btntmp.w, btntmp.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
+  displayRawText(c, btntmp.x, btntmp.y, displayColor, DISPLAY_BLACK);
   strcpy(vfoDisplay, c);
 }
 

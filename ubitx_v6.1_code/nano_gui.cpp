@@ -395,9 +395,11 @@ void displayChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t
            yo = pgm_read_byte(&glyph->yOffset);
   uint8_t  xx, yy, bits = 0, bit = 0;
   int16_t  xo16 = 0, yo16 = 0;
+
   int k;
   char vbuff[64]; // take a character that is upto 32 pixels wide (2 bytes per pixel)      
   digitalWrite(TFT_CS,LOW);
+  
   
   for(yy=0; yy<h; yy++) {
     k = 0;
@@ -447,7 +449,8 @@ void displayRawText(char *text, int x1, int y1, int color, int background){
         uint8_t   w     = pgm_read_byte(&glyph->width),
                   h     = pgm_read_byte(&glyph->height);
         if((w > 0) && (h > 0)) { // Is there an associated bitmap?
-            int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
+            //int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
+            quickFill(x1, y1, x1+(uint8_t)pgm_read_byte(&glyph->xAdvance), y1+h, background);
             displayChar(x1, y1+TEXT_LINE_HEIGHT, c, color, background);
             checkCAT();
         }
@@ -474,7 +477,8 @@ void displayText(char *text, int x1, int y1, int w, int h, int color, int backgr
         uint8_t   w     = pgm_read_byte(&glyph->width),
                   h     = pgm_read_byte(&glyph->height);
         if((w > 0) && (h > 0)) { // Is there an associated bitmap?
-            int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
+            //int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
+            
             displayChar(x1, y1+TEXT_LINE_HEIGHT, c, color, background);
             checkCAT();
         }
@@ -578,5 +582,3 @@ void setupTouch(){
   writeTouchCalibration();
   displayClear(DISPLAY_BLACK);
 }
-
-
