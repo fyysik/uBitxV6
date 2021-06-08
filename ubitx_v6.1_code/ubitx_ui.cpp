@@ -405,7 +405,7 @@ void enterFreq(){
               cursor_pos--;      
             c[cursor_pos] = 0;
           }
-          else if (!strcmp(b.text, "Esc")){
+          else if (!strcmp(b.text, "ESC")){
             guiUpdate();
             return;
           }
