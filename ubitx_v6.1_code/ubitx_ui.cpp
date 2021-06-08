@@ -254,7 +254,7 @@ void displayDialog(char *title, char *instructions){
 
 char vfoDisplay[12];
 
-void displayVFO(int vfo){
+void displayVFO(int vfo, bool raw = false){
   int x, y;
   int displayColor, displayBorder;
 
@@ -301,8 +301,8 @@ void displayVFO(int vfo){
     }
   }
 
-  //displayText(c, btntmp.x, btntmp.y, btntmp.w, btntmp.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY);
-  displayRawText(c, btntmp.x, btntmp.y, displayColor, DISPLAY_BLACK);
+
+  displayText(c, btntmp.x, btntmp.y, btntmp.w, btntmp.h, displayColor, DISPLAY_BLACK, DISPLAY_DARKGREY, raw);
   strcpy(vfoDisplay, c);
 }
 
@@ -490,7 +490,7 @@ void guiUpdate(){
 
 // this builds up the top line of the display with frequency and mode
 void updateDisplay() {
-   displayVFO(vfoActive);    
+   displayVFO(vfoActive, true);    
 }
 
 int enc_prev_state = 3;
@@ -680,7 +680,7 @@ void switchBand(long bandfreq){
   //struct Button e;
 
   setFrequency(bandfreq + offset);
-  //updateDisplay();
+  redrawVFOs();
   
   sidebandToggle((bandfreq < 10000000L)?"LSB":"USB");
   saveVFOs();

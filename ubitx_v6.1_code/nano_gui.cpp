@@ -439,9 +439,10 @@ int displayTextExtent(char *text) {
 }
 
 void displayRawText(char *text, int x1, int y1, int color, int background){
+
   while(*text){
     char c = *text++;
-    
+
     uint8_t first = pgm_read_byte(&gfxFont->first);
     if((c >= first) && (c <= (uint8_t)pgm_read_byte(&gfxFont->last))) {
   
@@ -460,10 +461,11 @@ void displayRawText(char *text, int x1, int y1, int color, int background){
 }
 
 // The generic routine to display one line on the LCD 
-void displayText(char *text, int x1, int y1, int w, int h, int color, int background, int border) {
+void displayText(char *text, int x1, int y1, int w, int h, int color, int background, int border, bool raw) {
 
-  displayFillrect(x1, y1, w ,h, background);
+  if(!raw) {displayFillrect(x1, y1, w ,h, background);
   displayRect(x1, y1, w ,h, border);
+  }
 
   x1 += (w - displayTextExtent(text))/2;
   y1  += (h - TEXT_LINE_HEIGHT)/2;
@@ -478,7 +480,7 @@ void displayText(char *text, int x1, int y1, int w, int h, int color, int backgr
                   h     = pgm_read_byte(&glyph->height);
         if((w > 0) && (h > 0)) { // Is there an associated bitmap?
             //int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
-            
+            //quickFill(x1, y1, x1+(uint8_t)pgm_read_byte(&glyph->xAdvance), y1+h, background);
             displayChar(x1, y1+TEXT_LINE_HEIGHT, c, color, background);
             checkCAT();
         }

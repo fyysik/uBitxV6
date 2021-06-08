@@ -10,7 +10,6 @@
  * The Raduino is a small board that includes the Arduin Nano, a TFT display and
  * an Si5351a frequency synthesizer. This board is manufactured by HF Signals Electronics Pvt Ltd
  * 
- * To learn more about Arduino you may visit www.arduino.cc. 
  * 
  * The Arduino works by starts executing the code in a function called setup() and then it 
  * repeatedly keeps calling loop() forever. All the initialization code is kept in setup()
@@ -636,7 +635,7 @@ void doTuning(){
     
   }
   else
-    frequency += s*5L;
+    frequency += s*3L;
    
   if (prev_freq < 10000000l && frequency > 10000000l)
     isUSB = true;
